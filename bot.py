@@ -29,9 +29,21 @@ def home():
 
 # Telebot-u paralel işlətmək üçün
 def run_bot():
-  #  bot.infinity_polling()
+    # Webhook-u sil və yeni URL ilə təyin et
+    bot.remove_webhook()
+    bot.set_webhook(url='https://tahastorebot.onrender.com/' + TOKEN)
 
+# Flask tətbiqini və botu paralel işə sal
+@app.route('/' + TOKEN, methods=['POST'])
+def webhook():
+    update = telebot.types.Update.de_json(request.data.decode("utf-8"))
+    bot.process_new_updates([update])
+    return 'ok', 200
+
+# Flask serverini işə salır
 if __name__ == "__main__":
+    # Webhook-u başlatmaq üçün botu paralel işlədirik
     threading.Thread(target=run_bot).start()
+    # Flask tətbiqini işə salırıq
     port = int(os.environ.get('PORT', 5000))
     app.run(host="0.0.0.0", port=port)
