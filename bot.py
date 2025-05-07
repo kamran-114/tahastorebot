@@ -29,7 +29,7 @@ def home():
 
 # Telebot-u paralel işlətmək üçün
 def run_bot():
-    bot.infinity_polling()
+  #  bot.infinity_polling()
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
