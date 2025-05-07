@@ -1,26 +1,18 @@
+import os
 import telebot
+from flask import Flask
 
-bot = telebot.TeleBot("7636424888:AAH58LLAzt3ycad8Q7UMTVMnAW9IPeLTUOI")
+# Telegram botunun tokenini daxil et
+bot = telebot.TeleBot("YOUR_BOT_API_KEY")
 
-# Komandalar üçün
-@bot.message_handler(commands=['start'])
-def start_command(message):
-    bot.reply_to(message, "Salam! Mənə kitablarla bağlı suallar verə bilərsən.")
+app = Flask(__name__)
 
-@bot.message_handler(commands=['help'])
-def help_command(message):
-    bot.reply_to(message, "Mən sizə kitablar haqqında kömək edə bilərəm. Əgər almaq istədiyiniz kitabı bilmirsinizsə, mənə deyə bilərsiniz.")
+@app.route('/')
+def home():
+    return "Hello, World!"
 
-@bot.message_handler(commands=['info'])
-def info_command(message):
-    bot.reply_to(message, "Bu bot kitab satışını asanlaşdırmaq məqsədilə yaradılıb. Məlumat üçün yazın!")
-
-@bot.message_handler(commands=['hello'])
-def hello_command(message):
-    bot.reply_to(message, "Salam! Necəsən? Kitab haqqında nə sualınız var?")
-
-# Sıradan mesajlar üçün (komanda olmayanlar)
-@bot.message_handler(func=lambda message: not message.text.startswith('/'))
+# Telegram botunun mətnləri ilə işləyən hissə
+@bot.message_handler(func=lambda message: True)
 def handle_message(message):
     text = message.text.lower()
 
@@ -32,19 +24,12 @@ def handle_message(message):
         bot.reply_to(message, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
     else:
         bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
-import os
-from flask import Flask
 
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Hello, World!"
-
+# Flask serverini işə salmaq üçün
 if __name__ == "__main__":
-    # Render, portu mühit dəyişkəni olaraq təyin edəcək
-    port = int(os.environ.get('PORT', 10000)) 
+    port = int(os.environ.get('PORT', 10000))
     app.run(host="0.0.0.0", port=port)
 
-# polling bir dəfə olmalıdır
-bot.polling()
+    # Telegram botu üçün polling
+    bot.infinity_polling()
+
