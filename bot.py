@@ -32,6 +32,19 @@ def handle_message(message):
         bot.reply_to(message, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
     else:
         bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
+import os
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Hello, World!"
+
+if __name__ == "__main__":
+    # Render, portu mühit dəyişkəni olaraq təyin edəcək
+    port = int(os.environ.get('PORT', 10000)) 
+    app.run(host="0.0.0.0", port=port)
 
 # polling bir dəfə olmalıdır
 bot.polling()
