@@ -1,21 +1,16 @@
-import os
 import telebot
-from flask import Flask
+from flask import Flask, request
+import os
+import threading
 
-# Telegram botunun tokenini daxil et
-bot = telebot.TeleBot("YOUR_BOT_API_KEY")
+# TOKEN burada təyin olunur
+TOKEN = "7636424888:AAH58LLAzt3ycad8Q7UMTVMnAW9IPeLTUOI"
+bot = telebot.TeleBot(TOKEN)
 
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Hello, World!"
-
-# Telegram botunun mətnləri ilə işləyən hissə
+# Mesaj cavabları
 @bot.message_handler(func=lambda message: True)
-def handle_message(message):
+def echo_all(message):
     text = message.text.lower()
-
     if "kitab" in text:
         bot.reply_to(message, "Hansı janrda kitab axtarırsınız?")
     elif "qiymət" in text:
@@ -25,11 +20,18 @@ def handle_message(message):
     else:
         bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
 
-# Flask serverini işə salmaq üçün
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 10000))
-    app.run(host="0.0.0.0", port=port)
+# Flask tətbiqi
+app = Flask(__name__)
 
-    # Telegram botu üçün polling
+@app.route('/')
+def home():
+    return "Bot işləyir!"
+
+# Telebot-u paralel işlətmək üçün
+def run_bot():
     bot.infinity_polling()
 
+if __name__ == "__main__":
+    threading.Thread(target=run_bot).start()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host="0.0.0.0", port=port)
