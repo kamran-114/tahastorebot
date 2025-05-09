@@ -48,18 +48,20 @@ def get_weather(city):
         return f"{city.capitalize()} şəhərində hava: {data['weather'][0]['description']}, {data['main']['temp']}°C."
     return "Şəhər tapılmadı və ya hava məlumatı mövcud deyil."
 
-# Kitab axtarışı
+# Kitab axtarışı (təsvir olmadan, azərbaycanca cavab)
 def search_books(query):
     url = f"{GOOGLE_BOOKS_API_URL}?q={query}"
     response = requests.get(url)
-    if "items" in response.json():
+    data = response.json()
+
+    if "items" in data:
         results = []
-        for book in response.json()["items"][:3]:
+        for book in data["items"][:5]:
             title = book["volumeInfo"].get("title", "Başlıq tapılmadı")
             authors = ", ".join(book["volumeInfo"].get("authors", ["Müəllif yoxdur"]))
-            results.append(f"📘 {title}\n✍️ {authors}\n")
+            results.append(f"📘 {title}\n✍️ Müəllif: {authors}\n")
         return "\n".join(results)
-    return "Axtarışa uyğun kitab tapılmadı."
+    return "Axtarışınıza uyğun kitab tapılmadı."
 
 # Flask
 @app.route('/')
