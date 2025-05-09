@@ -2,45 +2,34 @@ import telebot
 from flask import Flask, request
 import os
 import requests
-import threading
 
 TOKEN = "7636424888:AAH58LLAzt3ycad8Q7UMTVMnAW9IPeLTUOI"
 bot = telebot.TeleBot(TOKEN)
+app = Flask(__name__)
 
-# OpenWeatherMap API açarınızı burada yerləşdirin
+# Weather və kitab axtarışı üçün açarlar
 WEATHER_API_KEY = "8db207e04b11bb5027922faf1eeee944"
 GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
 
-# ✅ Mesaj cavablandırma funksiyası
-@bot.message_handler(func=lambda message: True)
-def reply_to_user(message):
-    print(f"Gələn mesaj: {message.text}")
-
+# Mesajlara cavab
+@bot.message_handler(func=lambda message: message.text is not None)
+def handle_message(message):
     text = message.text.lower()
 
-    # Hava məlumatları üçün axtarış
     if "hava" in text:
         city = text.replace("hava", "").strip()
-        if city:
-            weather = get_weather(city)
-            bot.reply_to(message, weather)
-        else:
-            bot.reply_to(message, "Zəhmət olmasa şəhər adını daxil edin.")
+        msg = get_weather(city) if city else "Zəhmət olmasa şəhər adını daxil edin."
+        bot.reply_to(message, msg)
 
-    # Kitab axtarışı üçün axtarış
     elif "kitab" in text:
         query = text.replace("kitab", "").strip()
-        if query:
-            books = search_books(query)
-            bot.reply_to(message, books)
-        else:
-            bot.reply_to(message, "Zəhmət olmasa axtarmaq istədiyiniz kitabın adını daxil edin.")
+        msg = search_books(query) if query else "Zəhmət olmasa kitab adı yazın."
+        bot.reply_to(message, msg)
 
-    # Əlavə cavablar
-    elif any(word in text for word in ["salam", "salammm", "salamm"]):
+    elif any(word in text for word in ["salam", "salamm"]):
         bot.reply_to(message, "Salam! Necə kömək edə bilərəm?")
     elif "necəsən" in text:
-        bot.reply_to(message, "Mən yaxşıyam, sağ ol! Sən necəsən?")
+        bot.reply_to(message, "Mən yaxşıyam! Sən necəsən?")
     elif any(word in text for word in ["qiymət", "neçəyə"]):
         bot.reply_to(message, "Qiymətlər kitabdan asılı olaraq dəyişir.")
     elif any(word in text for word in ["əlaqə", "nömrə"]):
@@ -50,52 +39,32 @@ def reply_to_user(message):
     else:
         bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
 
-# Hava məlumatı alırıq (OpenWeatherMap API)
+# Hava məlumatı
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
     response = requests.get(url)
-    
     if response.status_code == 200:
         data = response.json()
-        temperature = data['main']['temp']
-        description = data['weather'][0]['description']
-        weather_report = f"{city.capitalize()} şəhərində hava: {description}. Temperatur: {temperature}°C."
-        return weather_report
-    else:
-        return "Şəhər tapılmadı və ya hava məlumatları əldə edilə bilmədi."
+        return f"{city.capitalize()} şəhərində hava: {data['weather'][0]['description']}, {data['main']['temp']}°C."
+    return "Şəhər tapılmadı və ya hava məlumatı mövcud deyil."
 
-# Google Books API istifadə edərək kitab axtarışı
+# Kitab axtarışı
 def search_books(query):
     url = f"{GOOGLE_BOOKS_API_URL}?q={query}"
     response = requests.get(url)
-    data = response.json()
-
-    if "items" in data:
-        books = data["items"]
+    if "items" in response.json():
         results = []
-
-        for book in books[:5]:  # İlk 5 kitabı göstəririk
+        for book in response.json()["items"][:3]:
             title = book["volumeInfo"].get("title", "Başlıq tapılmadı")
-            authors = ", ".join(book["volumeInfo"].get("authors", ["Müəllif tapılmadı"]))
-            description = book["volumeInfo"].get("description", "Təsvir tapılmadı")
-            results.append(f"**{title}**\nMüəllif: {authors}\nTəsvir: {description}\n\n")
-
+            authors = ", ".join(book["volumeInfo"].get("authors", ["Müəllif yoxdur"]))
+            results.append(f"📘 {title}\n✍️ {authors}\n")
         return "\n".join(results)
-    else:
-        return "Axtarışınıza uyğun heç bir nəticə tapılmadı."
+    return "Axtarışa uyğun kitab tapılmadı."
 
-# Flask hissəsi
-app = Flask(__name__)
-
+# Flask
 @app.route('/')
-def home():
+def index():
     return "Bot işləyir!"
-
-def run_bot():
-    print("Bot başlamalıdır...")
-    bot.remove_webhook()
-    bot.set_webhook(url='https://tahastorebot.onrender.com/' + TOKEN)
-    print("Webhook quruldu.")
 
 @app.route('/' + TOKEN, methods=['POST'])
 def webhook():
@@ -104,7 +73,7 @@ def webhook():
     return 'ok', 200
 
 if __name__ == "__main__":
-    threading.Thread(target=run_bot).start()
+    bot.remove_webhook()
+    bot.set_webhook(url='https://tahastorebot.onrender.com/' + TOKEN)
     port = int(os.environ.get('PORT', 5000))
     app.run(host="0.0.0.0", port=port)
-
