@@ -7,11 +7,9 @@ TOKEN = "7636424888:AAH58LLAzt3ycad8Q7UMTVMnAW9IPeLTUOI"
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-# Weather və kitab axtarışı üçün açarlar
 WEATHER_API_KEY = "8db207e04b11bb5027922faf1eeee944"
 GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
 
-# Mesajlara cavab
 @bot.message_handler(func=lambda message: message.text is not None)
 def handle_message(message):
     text = message.text.lower()
@@ -39,7 +37,6 @@ def handle_message(message):
     else:
         bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
 
-# Hava məlumatı
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
     response = requests.get(url)
@@ -48,7 +45,6 @@ def get_weather(city):
         return f"{city.capitalize()} şəhərində hava: {data['weather'][0]['description']}, {data['main']['temp']}°C."
     return "Şəhər tapılmadı və ya hava məlumatı mövcud deyil."
 
-# Kitab axtarışı (təsvir olmadan, azərbaycanca cavab)
 def search_books(query):
     url = f"{GOOGLE_BOOKS_API_URL}?q={query}"
     response = requests.get(url)
@@ -63,7 +59,6 @@ def search_books(query):
         return "\n".join(results)
     return "Axtarışınıza uyğun kitab tapılmadı."
 
-# Flask
 @app.route('/')
 def index():
     return "Bot işləyir!"
@@ -79,3 +74,4 @@ if __name__ == "__main__":
     bot.set_webhook(url='https://tahastorebot.onrender.com/' + TOKEN)
     port = int(os.environ.get('PORT', 5000))
     app.run(host="0.0.0.0", port=port)
+
