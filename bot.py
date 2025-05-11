@@ -3,6 +3,7 @@ from flask import Flask, request
 import os
 import requests
 import time
+from telebot import types
 
 TOKEN = "7636424888:AAH58LLAzt3ycad8Q7UMTVMnAW9IPeLTUOI"
 bot = telebot.TeleBot(TOKEN)
@@ -15,28 +16,29 @@ BOOK_CATALOG = [
         "title": "Müsəlmanlığın əsasları",
         "author": "Əbu Həmid əl-Qəzzali",
         "description": "İslamın təməl prinsiplərini izah edən klassik əsər.",
-        "price": "6 AZN"
+        "price": "6 AZN",
+        "link": "https://t.me/taha_onlayn_satis/991"
     },
     {
         "title": "Əl-Kafi (Hədislər toplusu)",
         "author": "Kuleyni",
         "description": "Şiə hədislərinin əsas mənbələrindən biri.",
-        "price": "10 AZN"
+        "price": "10 AZN",
+        "link": "https://t.me/taha_onlayn_satis/992"
     },
     {
         "title": "Namazın sirri",
         "author": "Murtəza Mutəhhəri",
         "description": "Namazın mənəvi tərəflərini izah edən dərin əsər.",
-        "price": "5 AZN"
+        "price": "5 AZN",
+        "link": "https://t.me/taha_onlayn_satis/993"
     }
 ]
-
-from telebot import types
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.row("Hava", "Kitablar")
+    markup.row("🌦️ Hava", "📚 Kitablar")
     bot.send_message(message.chat.id, "Xoş gəlmisiniz! Aşağıdakı düymələrdən istifadə edə bilərsiniz:", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text is not None)
@@ -44,14 +46,14 @@ def handle_message(message):
     text = message.text.lower()
     time.sleep(1)
 
-    if text == "hava":
+    if text in ["hava", "🌦️ hava", "🌦️ hava"]:
         bot.reply_to(message, get_weather("Bakı"))
 
-    elif text == "kitablar":
-        markup = types.InlineKeyboardMarkup()
+    elif text in ["kitablar", "📚 kitablar"]:
+        msg = ""
         for book in BOOK_CATALOG:
-            markup.add(types.InlineKeyboardButton(book['title'], callback_data=f"book_{book['title']}"))
-        bot.send_message(message.chat.id, "Aşağıdakı kitabları seçə bilərsiniz:", reply_markup=markup)
+            msg += f"📘 [{book['title']}]({book['link']})\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n\n"
+        bot.send_message(message.chat.id, msg, parse_mode="Markdown")
 
     elif "hava" in text:
         city = text.replace("hava", "").strip()
@@ -84,15 +86,6 @@ def handle_message(message):
     else:
         bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("book_"))
-def book_info(call):
-    book_title = call.data.replace("book_", "")
-    for book in BOOK_CATALOG:
-        if book['title'] == book_title:
-            msg = f"📘 {book['title']}\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n"
-            bot.send_message(call.message.chat.id, msg)
-            break
-
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric&lang=az"
     response = requests.get(url)
@@ -106,7 +99,7 @@ def search_books(query):
     results = []
     for book in BOOK_CATALOG:
         if query in book["title"].lower():
-            results.append(f"📘 {book['title']}\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n")
+            results.append(f"📘 [{book['title']}]({book['link']})\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n")
     return "\n\n".join(results) if results else "Axtardığınız kitaba uyğun nəticə tapılmadı."
 
 @app.route('/')
