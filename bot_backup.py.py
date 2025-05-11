@@ -49,13 +49,13 @@ def handle_message(message):
     if text in ["hava", "🌦️ hava", "🌦️ hava"]:
         bot.reply_to(message, get_weather("Bakı"))
 
-    eelif text in ["kitablar", "📚 kitablar"]:
-    msg = ""
-    for book in BOOK_CATALOG:
-        msg += f"📘 {book['title']}\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n🔗 [Bax]({book['link']})\n\n"
-    bot.send_message(message.chat.id, msg, parse_mode="Markdown")
+    elif text in ["kitablar", "📚 kitablar"]:
+        msg = ""
+        for book in BOOK_CATALOG:
+            msg += f"📘 [{book['title']}]({book['link']})\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n\n"
+        bot.send_message(message.chat.id, msg, parse_mode="Markdown")
+
     elif "hava" in text:
-        
         city = text.replace("hava", "").strip()
         msg = get_weather(city) if city else "Zəhmət olmasa şəhər adını daxil edin."
         bot.reply_to(message, msg)
