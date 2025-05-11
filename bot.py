@@ -13,25 +13,13 @@ WEATHER_API_KEY = "8db207e04b11bb5027922faf1eeee944"
 
 BOOK_CATALOG = [
     {
-        "title": "Müsəlmanlığın əsasları",
-        "author": "Əbu Həmid əl-Qəzzali",
-        "description": "İslamın təməl prinsiplərini izah edən klassik əsər.",
-        "price": "6 AZN",
+    },
+    {
+        "title": "14 M?sumun(s) h?yatı",
+        "author": "Ay?tullah Müd?rrisi",
+        "description": "M?sumların h?yatı haqqında kitab",
+        "price": "12 AZN",
         "link": "https://t.me/taha_onlayn_satis/991"
-    },
-    {
-        "title": "Əl-Kafi (Hədislər toplusu)",
-        "author": "Kuleyni",
-        "description": "Şiə hədislərinin əsas mənbələrindən biri.",
-        "price": "10 AZN",
-        "link": "https://t.me/taha_onlayn_satis/992"
-    },
-    {
-        "title": "Namazın sirri",
-        "author": "Murtəza Mutəhhəri",
-        "description": "Namazın mənəvi tərəflərini izah edən dərin əsər.",
-        "price": "5 AZN",
-        "link": "https://t.me/taha_onlayn_satis/993"
     }
 ]
 
