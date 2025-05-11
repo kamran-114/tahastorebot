@@ -13,13 +13,14 @@ WEATHER_API_KEY = "8db207e04b11bb5027922faf1eeee944"
 
 BOOK_CATALOG = [
     {
-    },
-    {
-        "title": "14 M?sumun(s) h?yatı",
-        "author": "Ay?tullah Müd?rrisi",
-        "description": "M?sumların h?yatı haqqında kitab",
+        "title": "14 Məsumun(s) həyatı",
+        "author": "Ayətullah Müdərrisi",
+        "description": "Məsumların həyatı haqqında kitab.",
         "price": "12 AZN",
         "link": "https://t.me/taha_onlayn_satis/991"
+    }
+]
+
     }
 ]
 
@@ -37,12 +38,13 @@ def handle_message(message):
     if text in ["hava", "🌦️ hava", "🌦️ hava"]:
         bot.reply_to(message, get_weather("Bakı"))
 
-    eelif text in ["kitablar", "📚 kitablar"]:
-    msg = ""
+    elif text == "kitablar":
     for book in BOOK_CATALOG:
-        msg += f"📘 {book['title']}\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n🔗 [Bax]({book['link']})\n\n"
-    bot.send_message(message.chat.id, msg, parse_mode="Markdown")
-    elif "hava" in text:
+        caption = f"📘 <b>{book['title']}</b>\n✍️ <i>{book['author']}</i>\n📄 {book['description']}\n💰 {book['price']}"
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("📖 Kitaba Bax", url=book["link"]))
+        bot.send_message(message.chat.id, caption, reply_markup=markup, parse_mode="HTML")
+
         
         city = text.replace("hava", "").strip()
         msg = get_weather(city) if city else "Zəhmət olmasa şəhər adını daxil edin."
