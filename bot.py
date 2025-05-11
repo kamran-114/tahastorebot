@@ -48,10 +48,10 @@ def handle_message(message):
         bot.reply_to(message, get_weather("Bakı"))
 
     elif text == "kitablar":
-        msg = ""
+        markup = types.InlineKeyboardMarkup()
         for book in BOOK_CATALOG:
-            msg += f"📘 {book['title']}\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n\n"
-        bot.reply_to(message, msg)
+            markup.add(types.InlineKeyboardButton(book['title'], callback_data=f"book_{book['title']}"))
+        bot.send_message(message.chat.id, "Aşağıdakı kitabları seçə bilərsiniz:", reply_markup=markup)
 
     elif "hava" in text:
         city = text.replace("hava", "").strip()
@@ -83,6 +83,15 @@ def handle_message(message):
 
     else:
         bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("book_"))
+def book_info(call):
+    book_title = call.data.replace("book_", "")
+    for book in BOOK_CATALOG:
+        if book['title'] == book_title:
+            msg = f"📘 {book['title']}\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n"
+            bot.send_message(call.message.chat.id, msg)
+            break
 
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric&lang=az"
