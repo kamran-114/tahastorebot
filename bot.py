@@ -51,6 +51,11 @@ def handle_message(message):
         msg = search_books(query) if query else "Zəhmət olmasa kitab adı yazın."
         bot.reply_to(message, msg)
 
+    elif "al" in text:  # Yeni şərt əlavə edirik
+        query = text.replace("al", "").strip()
+        msg = purchase_book(query) if query else "Zəhmət olmasa alacağınız kitabı qeyd edin."
+        bot.reply_to(message, msg)
+
     elif any(word in text for word in ["salam", "salamm"]):
         bot.reply_to(message, "Salam! Necə kömək edə bilərəm?")
     elif "necəsən" in text:
@@ -73,6 +78,17 @@ def get_weather(city):
         return f"{city.capitalize()} şəhərində hava: {data['weather'][0]['description']}, {data['main']['temp']}°C."
     return "Şəhər tapılmadı və ya hava məlumatı mövcud deyil."
 
+# Yeni funksiyanı əlavə edirik - Kitabın alınması
+def purchase_book(query):
+    query = query.lower()
+    results = []
+    for book in BOOK_CATALOG:
+        if query in book["title"].lower():
+            results.append(f"📘 Kitab: {book['title']}\n✍️ Müəllif: {book['author']}\n💰 Qiymət: {book['price']}\n")
+            # İstifadəçiyə təsdiq mesajı
+            return f"Kitab {book['title']} alındı! Sifarişiniz qeydə alındı."
+    return "Axtardığınız kitab tapılmadı."
+
 # Kitab axtarış funksiyası
 def search_books(query):
     query = query.lower()
@@ -81,6 +97,17 @@ def search_books(query):
         if query in book["title"].lower():
             results.append(f"📘 {book['title']}\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n")
     return "\n\n".join(results) if results else "Axtardığınız kitaba uyğun nəticə tapılmadı."
+
+# Yeni funksiyanı əlavə edirik - Kitabın alınması
+def purchase_book(query):
+    query = query.lower()
+    results = []
+    for book in BOOK_CATALOG:
+        if query in book["title"].lower():
+            results.append(f"📘 Kitab: {book['title']}\n✍️ Müəllif: {book['author']}\n💰 Qiymət: {book['price']}\n")
+            # İstifadəçiyə təsdiq mesajı
+            return f"Kitab {book['title']} alındı! Sifarişiniz qeydə alındı."
+    return "Axtardığınız kitab tapılmadı."
 
 # Flask interfeysi (webhook üçün)
 @app.route('/')
