@@ -2,7 +2,7 @@ import telebot
 from flask import Flask, request
 import os
 import requests
-import time  # time modulu əlavə edirik
+import time
 
 # Tokenlər
 TOKEN = "7636424888:AAH58LLAzt3ycad8Q7UMTVMnAW9IPeLTUOI"
@@ -12,7 +12,7 @@ app = Flask(__name__)
 # Hava məlumatı üçün açar
 WEATHER_API_KEY = "8db207e04b11bb5027922faf1eeee944"
 
-# Öz kitab kataloqumuz
+# Kitab siyahısı
 BOOK_CATALOG = [
     {
         "title": "Müsəlmanlığın əsasları",
@@ -34,42 +34,44 @@ BOOK_CATALOG = [
     }
 ]
 
-# İstifadəçi mesajlarını emal edən funksiya
+# Başlanğıc menyu düymələri
+from telebot import types
+
+def main_menu():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.row("📚 Kitablar", "🌦️ Hava")
+    markup.row("📞 Əlaqə")
+    return markup
+
+# Mesaj emalı
 @bot.message_handler(func=lambda message: message.text is not None)
 def handle_message(message):
-    time.sleep(1)  # Hər sorğu arasında 1 saniyə gözləyirik
-
+    time.sleep(1)
     text = message.text.lower()
 
-    if "hava" in text:
+    # Salamlaşma cavabları
+    if text in ["salam", "salammm", "salam əleykum", "salam aleykum"]:
+        bot.reply_to(message, "Əleykum Salam!", reply_markup=main_menu())
+    elif "necəsən" in text:
+        bot.reply_to(message, "Mən yaxşıyam! Sən necəsən?", reply_markup=main_menu())
+    elif any(word in text for word in ["qiymət", "neçəyə"]):
+        bot.reply_to(message, "Qiymətlər kitabdan asılı olaraq dəyişir.", reply_markup=main_menu())
+    elif any(word in text for word in ["əlaqə", "nömrə"]):
+        bot.reply_to(message, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX", reply_markup=main_menu())
+    elif any(word in text for word in ["çatdır", "çatdırılma"]):
+        bot.reply_to(message, "Çatdırılma Bakıda 1 günə, bölgələrə 2-3 günə çatır.", reply_markup=main_menu())
+    elif "📚 kitablar" in text or "kitab" in text:
+        query = text.replace("kitab", "").strip()
+        msg = search_books(query) if query else "Axtardığınız kitabı adla yaza bilərsiniz."
+        bot.reply_to(message, msg, reply_markup=main_menu())
+    elif "🌦️ hava" in text or "hava" in text:
         city = text.replace("hava", "").strip()
         msg = get_weather(city) if city else "Zəhmət olmasa şəhər adını daxil edin."
-        bot.reply_to(message, msg)
-
-    elif "kitab" in text:
-        query = text.replace("kitab", "").strip()
-        msg = search_books(query) if query else "Zəhmət olmasa kitab adı yazın."
-        bot.reply_to(message, msg)
-
-    elif "al" in text:  # Yeni şərt əlavə edirik
-        query = text.replace("al", "").strip()
-        msg = purchase_book(query) if query else "Zəhmət olmasa alacağınız kitabı qeyd edin."
-        bot.reply_to(message, msg)
-
-    elif any(word in text for word in ["salam", "salamm"]):
-        bot.reply_to(message, "Salam! Necə kömək edə bilərəm?")
-    elif "necəsən" in text:
-        bot.reply_to(message, "Mən yaxşıyam! Sən necəsən?")
-    elif any(word in text for word in ["qiymət", "neçəyə"]):
-        bot.reply_to(message, "Qiymətlər kitabdan asılı olaraq dəyişir.")
-    elif any(word in text for word in ["əlaqə", "nömrə"]):
-        bot.reply_to(message, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
-    elif any(word in text for word in ["çatdır", "çatdırılma"]):
-        bot.reply_to(message, "Çatdırılma Bakıda 1 günə, bölgələrə 2-3 günə çatır.")
+        bot.reply_to(message, msg, reply_markup=main_menu())
     else:
-        bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
+        bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.", reply_markup=main_menu())
 
-# Hava məlumatını çəkən funksiya
+# Hava funksiyası
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric&lang=az"
     response = requests.get(url)
@@ -78,18 +80,7 @@ def get_weather(city):
         return f"{city.capitalize()} şəhərində hava: {data['weather'][0]['description']}, {data['main']['temp']}°C."
     return "Şəhər tapılmadı və ya hava məlumatı mövcud deyil."
 
-# Yeni funksiyanı əlavə edirik - Kitabın alınması
-def purchase_book(query):
-    query = query.lower()
-    results = []
-    for book in BOOK_CATALOG:
-        if query in book["title"].lower():
-            results.append(f"📘 Kitab: {book['title']}\n✍️ Müəllif: {book['author']}\n💰 Qiymət: {book['price']}\n")
-            # İstifadəçiyə təsdiq mesajı
-            return f"Kitab {book['title']} alındı! Sifarişiniz qeydə alındı."
-    return "Axtardığınız kitab tapılmadı."
-
-# Kitab axtarış funksiyası
+# Kitab axtarışı
 def search_books(query):
     query = query.lower()
     results = []
@@ -98,18 +89,7 @@ def search_books(query):
             results.append(f"📘 {book['title']}\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n")
     return "\n\n".join(results) if results else "Axtardığınız kitaba uyğun nəticə tapılmadı."
 
-# Yeni funksiyanı əlavə edirik - Kitabın alınması
-def purchase_book(query):
-    query = query.lower()
-    results = []
-    for book in BOOK_CATALOG:
-        if query in book["title"].lower():
-            results.append(f"📘 Kitab: {book['title']}\n✍️ Müəllif: {book['author']}\n💰 Qiymət: {book['price']}\n")
-            # İstifadəçiyə təsdiq mesajı
-            return f"Kitab {book['title']} alındı! Sifarişiniz qeydə alındı."
-    return "Axtardığınız kitab tapılmadı."
-
-# Flask interfeysi (webhook üçün)
+# Flask webhook
 @app.route('/')
 def index():
     return "Bot işləyir!"
@@ -120,9 +100,10 @@ def webhook():
     bot.process_new_updates([update])
     return 'ok', 200
 
-# Əsas işlədici hissə
+# Webhooku qur
 if __name__ == "__main__":
     bot.remove_webhook()
     bot.set_webhook(url='https://tahastorebot.onrender.com/' + TOKEN)
     port = int(os.environ.get('PORT', 5000))
     app.run(host="0.0.0.0", port=port)
+
