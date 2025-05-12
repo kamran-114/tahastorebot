@@ -4,12 +4,21 @@ import os
 import requests
 import time
 from telebot import types
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 
 TOKEN = "7636424888:AAH58LLAzt3ycad8Q7UMTVMnAW9IPeLTUOI"
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 WEATHER_API_KEY = "8db207e04b11bb5027922faf1eeee944"
+
+SPOTIFY_CLIENT_ID = "b804430eb5f8457ea58200c0c6e857be"
+SPOTIFY_CLIENT_SECRET = "424fce5b09194c7eb6811b70039f70f1"
+
+# Spotify API ayarları
+spotify_auth_manager = SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET)
+spotify = spotipy.Spotify(auth_manager=spotify_auth_manager)
 
 BOOK_CATALOG = [
     {
@@ -38,15 +47,15 @@ BOOK_CATALOG = [
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.row("🌦️ Hava", "📚 Kitablar")
+    markup.row("🌦️ Hava", "📚 Kitablar", "🎧 Spotify")
     bot.send_message(message.chat.id, "Xoş gəlmisiniz! Aşağıdakı düymələrdən istifadə edə bilərsiniz:", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text is not None)
 def handle_message(message):
-    text = message.text.lower()
+    text = message.text.lower().strip()
     time.sleep(1)
 
-    if text in ["hava", "🌦️ hava", "🌦️ hava"]:
+    if text in ["hava", "🌦️ hava"]:
         bot.reply_to(message, get_weather("Bakı"))
 
     elif text in ["kitablar", "📚 kitablar"]:
@@ -54,6 +63,9 @@ def handle_message(message):
         for book in BOOK_CATALOG:
             msg += f"📘 [{book['title']}]({book['link']})\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n\n"
         bot.send_message(message.chat.id, msg, parse_mode="Markdown")
+
+    elif text in ["spotify", "🎧 spotify"]:
+        bot.reply_to(message, "Spotify-da axtarmaq istədiyiniz mahnının və ya ifaçının adını yazın (məsələn: *Baqir Mənsuri*).")
 
     elif "hava" in text:
         city = text.replace("hava", "").strip()
@@ -63,6 +75,11 @@ def handle_message(message):
     elif "kitab" in text:
         query = text.replace("kitab", "").strip()
         msg = search_books(query) if query else "Zəhmət olmasa kitab adı yazın."
+        bot.reply_to(message, msg)
+
+    elif "spotify" in text:
+        query = text.replace("spotify", "").strip()
+        msg = search_spotify(query) if query else "Zəhmət olmasa axtarmaq istədiyiniz mahnı və ya ifaçını yazın."
         bot.reply_to(message, msg)
 
     elif any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
@@ -101,6 +118,22 @@ def search_books(query):
         if query in book["title"].lower():
             results.append(f"📘 [{book['title']}]({book['link']})\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n")
     return "\n\n".join(results) if results else "Axtardığınız kitaba uyğun nəticə tapılmadı."
+
+def search_spotify(query):
+    try:
+        results = spotify.search(q=query, limit=3, type='track')
+        if results['tracks']['items']:
+            msg = "🎵 Spotify nəticələri:\n\n"
+            for track in results['tracks']['items']:
+                name = track['name']
+                artist = track['artists'][0]['name']
+                url = track['external_urls']['spotify']
+                msg += f"🎧 {name} - {artist}\n🔗 [Dinlə]({url})\n\n"
+            return msg
+        else:
+            return "Nəticə tapılmadı."
+    except Exception as e:
+        return "Spotify məlumatına çatmaq mümkün olmadı."
 
 @app.route('/')
 def index():

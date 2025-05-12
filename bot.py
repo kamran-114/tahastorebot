@@ -1,115 +1,138 @@
 import telebot
-from flask import Flask, request
-import os
 import requests
-import time
-from telebot import types
+import json
+import os
+from flask import Flask, request
+import base64
+from dotenv import load_dotenv
 
-TOKEN = "7636424888:AAH58LLAzt3ycad8Q7UMTVMnAW9IPeLTUOI"
-bot = telebot.TeleBot(TOKEN)
+# .env faylını yüklə
+load_dotenv()
+
+# Ətraf mühit dəyişənlərini götür
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+
+# Telebot obyektini yarat
+bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
-WEATHER_API_KEY = "8db207e04b11bb5027922faf1eeee944"
+# Spotify funksiyaları
+def get_spotify_token():
+    auth_str = f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}"
+    b64_auth_str = base64.b64encode(auth_str.encode()).decode()
 
-BOOK_CATALOG = [
-    {
-        "title": "14 Məsumun(s) həyatı",
-        "author": "Ayətullah Müdərrisi",
-        "description": "Məsumların həyatı haqqında kitab.",
-        "price": "12 AZN",
-        "link": "https://t.me/taha_onlayn_satis/991"
+    response = requests.post(
+        "https://accounts.spotify.com/api/token",
+        headers={"Authorization": f"Basic {b64_auth_str}"},
+        data={"grant_type": "client_credentials"}
+    )
+
+    if response.status_code == 200:
+        return response.json()["access_token"]
+    else:
+        return None
+
+def search_spotify(query):
+    token = get_spotify_token()
+    if not token:
+        return "Spotify ilə əlaqə qurulmadı."
+
+    headers = {
+        "Authorization": f"Bearer {token}"
     }
-]
 
+    params = {
+        "q": query,
+        "type": "track",
+        "limit": 5
+    }
+
+    response = requests.get("https://api.spotify.com/v1/search", headers=headers, params=params)
+
+    if response.status_code != 200:
+        return "Mahnı tapılmadı."
+
+    data = response.json()
+    tracks = data.get("tracks", {}).get("items", [])
+    if not tracks:
+        return "Nəticə tapılmadı."
+
+    msg = "🎵 Tapılan mahnılar:\n\n"
+    for track in tracks:
+        name = track["name"]
+        artists = ", ".join([artist["name"] for artist in track["artists"]])
+        url = track["external_urls"]["spotify"]
+        msg += f"🎧 <b>{name}</b> - {artists}\n🔗 <a href='{url}'>Spotify'da dinlə</a>\n\n"
+
+    return msg
+
+# Kitab məlumatları nümunəsi
+books = {
+    "Dini Kitablar": {
+        "Hədislər": [
+            {
+                "ad": "Kafi (1-ci cild)",
+                "müəllif": "Şeyx Kuleyni",
+                "haqqinda": "Əhli-beyt hədislərini əhatə edən mötəbər mənbələrdən biridir.",
+                "qiymet": "12 AZN"
+            },
+            {
+                "ad": "Səfinətül-Bihar",
+                "müəllif": "Şeyx Abbas Qummi",
+                "haqqinda": "Biharül-Ənvar əsərinin xülasəsidir.",
+                "qiymet": "10 AZN"
+            }
+        ]
+    }
+}
+
+# Əsas menyu
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.row("🌦️ Hava", "📚 Kitablar")
-    bot.send_message(message.chat.id, "Xoş gəlmisiniz! Aşağıdakı düymələrdən istifadə edə bilərsiniz:", reply_markup=markup)
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("Dini Kitablar")
+    bot.send_message(message.chat.id, "Salam! Nə ilə maraqlanırsan?", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text is not None)
+# İstifadəçi mesajını idarə et
+@bot.message_handler(func=lambda message: True)
 def handle_message(message):
     text = message.text.lower()
-    time.sleep(1)
 
-    if text in ["🌦️ hava", "hava"]:
-        bot.reply_to(message, get_weather("Bakı"))
+    if text == "dini kitablar":
+        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add("Hədislər", "🔙 Geri")
+        bot.send_message(message.chat.id, "Zəhmət olmasa bölmə seçin:", reply_markup=markup)
 
-    elif text in ["📚 kitablar", "kitablar"]:
-        msg = ""
-        for book in BOOK_CATALOG:
-            msg += f"📘 <b>{book['title']}</b>\n"
-            msg += f"✍️ Müəllif: {book['author']}\n"
-            msg += f"📄 {book['description']}\n"
-            msg += f"💰 Qiymət: {book['price']}\n"
-            msg += f"🔗 <a href='{book['link']}'>Kitaba bax</a>\n\n"
-        bot.send_message(message.chat.id, msg, parse_mode="HTML", disable_web_page_preview=False)
+    elif text == "hədislər":
+        for kitab in books["Dini Kitablar"]["Hədislər"]:
+            msg = f"📘 <b>{kitab['ad']}</b>\n✍️ Müəllif: {kitab['müəllif']}\nℹ️ {kitab['haqqinda']}\n💰 Qiymət: {kitab['qiymet']}"
+            bot.send_message(message.chat.id, msg, parse_mode="HTML")
 
-    elif "hava" in text:
-        city = text.replace("hava", "").strip()
-        msg = get_weather(city) if city else "Zəhmət olmasa şəhər adını daxil edin."
-        bot.reply_to(message, msg)
+    elif text == "🔙 geri":
+        send_welcome(message)
 
-    elif "kitab" in text:
-        query = text.replace("kitab", "").strip()
-        msg = search_books(query) if query else "Zəhmət olmasa kitab adı yazın."
-        bot.reply_to(message, msg)
-
-    elif any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
-        bot.reply_to(message, "Əleykum Salam!")
-
-    elif "necəsən" in text:
-        bot.reply_to(message, "Mən yaxşıyam! Sən necəsən?")
-
-    elif "çox sağ ol" in text or "çox sağol" in text:
-        bot.reply_to(message, "Dəyməz!")
-
-    elif any(word in text for word in ["qiymət", "neçəyə"]):
-        bot.reply_to(message, "Qiymətlər kitabdan asılı olaraq dəyişir.")
-
-    elif any(word in text for word in ["əlaqə", "nömrə"]):
-        bot.reply_to(message, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
-
-    elif any(word in text for word in ["çatdır", "çatdırılma"]):
-        bot.reply_to(message, "Çatdırılma Bakıda 1 günə, bölgələrə 2-3 günə çatır.")
+    elif any(name in text for name in ["pərviz hüseyni", "baqir mənsuri", "islami mahnılar", "mərsiyə"]):
+        bot.send_chat_action(message.chat.id, "typing")
+        result = search_spotify(text)
+        bot.send_message(message.chat.id, result, parse_mode="HTML", disable_web_page_preview=False)
 
     else:
-        bot.reply_to(message, "Zəhmət olmasa telefon nömrənizi və ünvanınızı da əlavə edin.")
+        bot.send_message(message.chat.id, "Axtardığınız ifadə üzrə nəticə tapılmadı və ya seçim mövcud deyil.")
 
-def get_weather(city):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric&lang=az"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        return f"{city.capitalize()} şəhərində hava: {data['weather'][0]['description']}, {data['main']['temp']}°C."
-    return "Şəhər tapılmadı və ya hava məlumatı mövcud deyil."
-
-def search_books(query):
-    query = query.lower()
-    results = []
-    for book in BOOK_CATALOG:
-        if query in book["title"].lower():
-            results.append(
-                f"📘 <b>{book['title']}</b>\n"
-                f"✍️ Müəllif: {book['author']}\n"
-                f"📄 {book['description']}\n"
-                f"💰 Qiymət: {book['price']}\n"
-                f"🔗 <a href='{book['link']}'>Kitaba bax</a>"
-            )
-    return "\n\n".join(results) if results else "Axtardığınız kitaba uyğun nəticə tapılmadı."
-
-@app.route('/')
-def index():
-    return "Bot işləyir!"
-
-@app.route('/' + TOKEN, methods=['POST'])
+# Webhook və Flask
+@app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    update = telebot.types.Update.de_json(request.data.decode("utf-8"))
+    update = telebot.types.Update.de_json(request.stream.read().decode("utf-8"))
     bot.process_new_updates([update])
-    return 'ok', 200
+    return "", 200
+
+@app.route("/")
+def index():
+    return "Bot işə düşdü!"
 
 if __name__ == "__main__":
     bot.remove_webhook()
-    bot.set_webhook(url='https://tahastorebot.onrender.com/' + TOKEN)
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host="0.0.0.0", port=port)
+    bot.set_webhook(url=f"https://tahastorebot.onrender.com/{BOT_TOKEN}")
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
