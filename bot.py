@@ -24,6 +24,9 @@ BOOK_CATALOG = [
     }
 ]
 
+    }
+]
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -44,6 +47,7 @@ def handle_message(message):
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("📖 Kitaba Bax", url=book["link"]))
         bot.send_message(message.chat.id, caption, reply_markup=markup, parse_mode="HTML")
+
 
         
         city = text.replace("hava", "").strip()
