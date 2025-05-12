@@ -21,12 +21,6 @@ BOOK_CATALOG = [
     }
 ]
 
-    }
-]
-
-    }
-]
-
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -38,18 +32,20 @@ def handle_message(message):
     text = message.text.lower()
     time.sleep(1)
 
-    if text in ["hava", "🌦️ hava", "🌦️ hava"]:
+    if text in ["🌦️ hava", "hava"]:
         bot.reply_to(message, get_weather("Bakı"))
 
-    elif text == "kitablar":
-    for book in BOOK_CATALOG:
-        caption = f"📘 <b>{book['title']}</b>\n✍️ <i>{book['author']}</i>\n📄 {book['description']}\n💰 {book['price']}"
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("📖 Kitaba Bax", url=book["link"]))
-        bot.send_message(message.chat.id, caption, reply_markup=markup, parse_mode="HTML")
+    elif text in ["📚 kitablar", "kitablar"]:
+        msg = ""
+        for book in BOOK_CATALOG:
+            msg += f"📘 <b>{book['title']}</b>\n"
+            msg += f"✍️ Müəllif: {book['author']}\n"
+            msg += f"📄 {book['description']}\n"
+            msg += f"💰 Qiymət: {book['price']}\n"
+            msg += f"🔗 <a href='{book['link']}'>Kitaba bax</a>\n\n"
+        bot.send_message(message.chat.id, msg, parse_mode="HTML", disable_web_page_preview=False)
 
-
-        
+    elif "hava" in text:
         city = text.replace("hava", "").strip()
         msg = get_weather(city) if city else "Zəhmət olmasa şəhər adını daxil edin."
         bot.reply_to(message, msg)
@@ -93,7 +89,13 @@ def search_books(query):
     results = []
     for book in BOOK_CATALOG:
         if query in book["title"].lower():
-            results.append(f"📘 [{book['title']}]({book['link']})\n✍️ Müəllif: {book['author']}\n📄 {book['description']}\n💰 Qiymət: {book['price']}\n")
+            results.append(
+                f"📘 <b>{book['title']}</b>\n"
+                f"✍️ Müəllif: {book['author']}\n"
+                f"📄 {book['description']}\n"
+                f"💰 Qiymət: {book['price']}\n"
+                f"🔗 <a href='{book['link']}'>Kitaba bax</a>"
+            )
     return "\n\n".join(results) if results else "Axtardığınız kitaba uyğun nəticə tapılmadı."
 
 @app.route('/')
