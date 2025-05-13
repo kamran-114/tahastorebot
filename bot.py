@@ -14,6 +14,8 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
+print("BOT_TOKEN:", BOT_TOKEN)  # sınaq üçün
+
 # Telebot obyektini yarat
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
@@ -68,7 +70,7 @@ def search_spotify(query):
 
     return msg
 
-# Kitab məlumatları nümunəsi
+# Kitab məlumatları
 books = {
     "Dini Kitablar": {
         "Hədislər": [
@@ -88,38 +90,48 @@ books = {
     }
 }
 
-# Əsas menyu
+# İstifadəçinin vəziyyətini saxla
+user_states = {}
+
+# /start komandası
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("Dini Kitablar")
+    markup.add("Dini Kitablar", "🎵 Axtarış")
     bot.send_message(message.chat.id, "Salam! Nə ilə maraqlanırsan?", reply_markup=markup)
 
-# İstifadəçi mesajını idarə et
+# Bütün mesajları idarə et
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     text = message.text.lower()
+    chat_id = message.chat.id
+
+    if user_states.get(chat_id) == "awaiting_query":
+        bot.send_chat_action(chat_id, "typing")
+        result = search_spotify(message.text)
+        bot.send_message(chat_id, result, parse_mode="HTML", disable_web_page_preview=False)
+        user_states.pop(chat_id)
+        return
 
     if text == "dini kitablar":
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add("Hədislər", "🔙 Geri")
-        bot.send_message(message.chat.id, "Zəhmət olmasa bölmə seçin:", reply_markup=markup)
+        bot.send_message(chat_id, "Zəhmət olmasa bölmə seçin:", reply_markup=markup)
 
     elif text == "hədislər":
         for kitab in books["Dini Kitablar"]["Hədislər"]:
             msg = f"📘 <b>{kitab['ad']}</b>\n✍️ Müəllif: {kitab['müəllif']}\nℹ️ {kitab['haqqinda']}\n💰 Qiymət: {kitab['qiymet']}"
-            bot.send_message(message.chat.id, msg, parse_mode="HTML")
+            bot.send_message(chat_id, msg, parse_mode="HTML")
 
     elif text == "🔙 geri":
         send_welcome(message)
 
-    elif any(name in text for name in ["pərviz hüseyni", "baqir mənsuri", "islami mahnılar", "mərsiyə"]):
-        bot.send_chat_action(message.chat.id, "typing")
-        result = search_spotify(text)
-        bot.send_message(message.chat.id, result, parse_mode="HTML", disable_web_page_preview=False)
+    elif text == "🎵 axtarış":
+        user_states[chat_id] = "awaiting_query"
+        bot.send_message(chat_id, "🎶 Zəhmət olmasa mahnı və ya ifaçının adını yaz:")
 
     else:
-        bot.send_message(message.chat.id, "Axtardığınız ifadə üzrə nəticə tapılmadı və ya seçim mövcud deyil.")
+        bot.send_message(chat_id, "Axtardığınız ifadə üzrə nəticə tapılmadı və ya seçim mövcud deyil.")
 
 # Webhook və Flask
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
