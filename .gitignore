@@ -1,0 +1,17 @@
+# .env faylını git versiya nəzarətindən xaric et
+.env
+
+# Python bytecode faylları
+__pycache__/
+*.py[cod]
+
+# Virtual mühit faylları
+venv/
+.env/
+
+# IDE konfiqurasiya faylları
+.vscode/
+.idea/
+
+# Loq faylları
+*.log
