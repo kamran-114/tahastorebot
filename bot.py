@@ -96,7 +96,7 @@ def handle_dialogs(text, chat_id):
         bot.send_message(chat_id, "Əleykum Salam!")
     elif "necəsən" in text:
         bot.send_message(chat_id, "Mən yaxşıyam! Sən necəsən?")
-    elif "çox sağ ol" in text or "çox sağol" in text or "təşəkkür" in text:
+    elif "çox sağ ol" in text or "çox sağol" in text or "təşəkkür" in text or "yaxşıyam" in text:
         bot.send_message(chat_id, "Dəyməz, həmişə yaxşı ol! 😊")
     elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir", "neçədir"]):
         bot.send_message(chat_id, "Qiymətlər kitabdan asılı olaraq dəyişir. Hansı kitabla maraqlanırsınız?")
@@ -122,8 +122,80 @@ def handle_message(message):
             msg = f"📘 <b>{kitab['ad']}</b>\n✍️ Müəllif: {kitab['müəllif']}\nℹ️ {kitab['haqqinda']}\n💰 Qiymət: {kitab['qiymet']}"
             bot.send_message(chat_id, msg, parse_mode="HTML")
 
-    elif text == "mp3":
-        bot.send_message(chat_id, "Zəhmət olmasa axtaracağınız mahnı adını yazın.")
+   elif text == "mp3":
+    bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
+
+elif any(keyword in text for keyword in [
+    "abasəlt", "əba-əbdillah", "aldı hüseyn", "anam zəhra", "ləbeyk", "ya əli", "ya huseyn",
+    "ruqəyyə", "zəhra", "sahibi zaman", "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay"
+]):
+    drive_links = {
+        if 'abasəlt ebrahimi - abufazil' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1bCAe_7IjAbcZVGNNFvG01MXYZ')
+    elif 'abasəlt ebrahimi - aldı hüseyn qan ilə bir dəstəmaz' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1cDEf_8KjBcYZWGNNFvG02NABC')
+    elif 'abasəlt ebrahimi - hüseyn əba-əbdillah' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1dEFg_9LkCdZXWHNNFvG03NDEF')
+    elif 'abasəlt ebrahimi - ləbbeyk ya əba-əbdillah' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1eFGh_0MlDeAYXINNFvG04NGHI')
+    elif 'adel najafi - hz. əbəlfəzl' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1fGHi_1NmEfBZYOONFvG05NJJK')
+    elif 'hacı islam mirzai - anam zəhra' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1gHIj_2OnFgCZZPPNFvG06NKLM')
+    elif 'baqir mənsuri - ruqəyyə nazlı surətin' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1hIJk_3PoGhDAAQQNFvG07NLMN')
+    elif 'ceyhun müəzzin - əli mövla' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1iJKl_4QpHiEBBRRNFvG08NMOP')
+    elif 'əhlibeyt qrupu - əli əkbər' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1jKLm_5RqIjFCCSSNFvG09NPQR')
+    elif 'əhlibeyt qrupu - sahibi zaman gəldi' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1kLMn_6SrJkGDDTTNFvG10NQRS')
+    elif 'əhlibeyt qrupu - ya əli' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1lMNo_7TsKlHEEUUNFvG11NRTS')
+    elif 'əkbər babazadə - əli lay-lay gülüm lay-lay' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1mNOp_8UtLmIFFVVNFvG12NSUV')
+    elif 'mehdi rəsuli - əlini ağlatma' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1nOPq_9VuMnJGGWWNFvG13NTVW')
+    elif 'baqir mənsuri - əlinin yari zəhra' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1oPQr_0WvNoKHHXXNFvG14NUWX')
+    elif 'baqir mənsuri - ağlaram zəhra' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1pQRs_1XwOpLIYYYNFvG15NVXY')
+    elif 'baqir mənsuri - ağlama xudahafiz' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1qRSt_2YxPqMJZZZNFvG16NWYZ')
+    elif 'hacı kamran - yaralı zəhra' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1rSTu_3ZyQrNKAAANFvG17NXZA')
+    elif 'hacı kamran - ya hüseyn' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1sTUV_4AzRsOLBBBNFvG18NYAB')
+    elif 'hacı zahir - gözün aç zəhra' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1tUVW_5BaStPMCCCCNFvG19NZBC')
+    elif 'hadi kazemi - babəl hüseyn' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1uVWX_6CbTuQNDDDNFvG20NACD')
+    elif 'hadi kazemi - həbibi ya hüseyn' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1vWXY_7DcUvREDDDEFvG21NBDC')
+    elif 'hadi kazemi - məzlum əli' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1wXYZ_8EdVwSFEFFNFvG22NCEC')
+    elif 'hadi kazemi - million army' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1xYZA_9FeWxTGFGGNFvG23NDFC')
+    elif 'həsən neməti - salam qarə pərçəmə' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1yZAB_0GfXyUHGHHNFvG24NEGC')
+    elif 'əkbər babazadə - qara köynək geyərəm' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1zABC_1HgYzVIIIIIFvG25NFHC')
+    elif 'səlim müəzzinzadə - zeynəb zeynəb' in text:
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1aBCD_2IhAzWJJJJJFvG26NGIC')
+    else:
+        update.message.reply_text('Bağışlayın, bu mahnını tapa bilmədim.')
+# burda sən istədikcə əlavə edə bilərsən
+    }
+
+    found = False
+    for keyword, link in drive_links.items():
+        if keyword in text:
+            bot.send_message(chat_id, f"Dinlə: {link}")
+            found = True
+            break
+
+    if not found:
+        bot.send_message(chat_id, "Mahnı tapılmadı. Zəhmət olmasa daha dəqiq yazın.")
 
     elif text == "hava":
         bot.send_message(chat_id, "Zəhmət olmasa şəhər adını yazın.")
