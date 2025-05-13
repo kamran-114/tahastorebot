@@ -14,8 +14,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
-print("BOT_TOKEN:", BOT_TOKEN)  # sınaq üçün
-
 # Telebot obyektini yarat
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
@@ -48,7 +46,7 @@ def search_spotify(query):
     params = {
         "q": query,
         "type": "track",
-        "limit": 5
+        "limit": 1  # Cəmi 1 nəticə alırıq
     }
 
     response = requests.get("https://api.spotify.com/v1/search", headers=headers, params=params)
@@ -61,13 +59,13 @@ def search_spotify(query):
     if not tracks:
         return "Nəticə tapılmadı."
 
-    msg = "🎵 Tapılan mahnılar:\n\n"
-    for track in tracks:
-        name = track["name"]
-        artists = ", ".join([artist["name"] for artist in track["artists"]])
-        url = track["external_urls"]["spotify"]
-        msg += f"🎧 <b>{name}</b> - {artists}\n🔗 <a href='{url}'>Spotify'da dinlə</a>\n\n"
+    # Mağazanı əldə et və istifadəçiyə göndər
+    track = tracks[0]
+    name = track["name"]
+    artists = ", ".join([artist["name"] for artist in track["artists"]])
+    url = track["external_urls"]["spotify"]
 
+    msg = f"🎧 <b>{name}</b> - {artists}\n🔗 <a href='{url}'>Spotify'da dinlə</a>"
     return msg
 
 # Kitab məlumatları
@@ -89,6 +87,27 @@ books = {
         ]
     }
 }
+# İnsan dialoqları
+    elif any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
+        bot.reply_to(message, "Əleykum Salam!")
+
+    elif "necəsən" in text:
+        bot.reply_to(message, "Mən yaxşıyam! Sən necəsən?")
+
+    elif "çox sağ ol" in text or "çox sağol" in text or "təşəkkür" in text:
+        bot.reply_to(message, "Dəyməz, həmişə yaxşı ol! 😊")
+
+    elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir", "neçədir"]):
+        bot.reply_to(message, "Qiymətlər kitabdan asılı olaraq dəyişir. Hansı kitabla maraqlanırsınız?")
+
+    elif any(word in text for word in ["əlaqə", "nömrə"]):
+        bot.reply_to(message, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
+
+    elif any(word in text for word in ["çatdır", "çatdırılma"]):
+        bot.reply_to(message, "Çatdırılma Bakıda 1 günə, bölgələrə 2-3 günə çatır.")
+
+    elif "səni kim yaradıb" in text:
+        bot.reply_to(message, "Məni Kamran qardaşım yaradıb! 🤖❤️")
 
 # İstifadəçinin vəziyyətini saxla
 user_states = {}
@@ -97,7 +116,7 @@ user_states = {}
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("Dini Kitablar", "🎵 Axtarış")
+    markup.add("Dini Kitablar", "MP3 dinlə", "Hava", "Əlaqə")
     bot.send_message(message.chat.id, "Salam! Nə ilə maraqlanırsan?", reply_markup=markup)
 
 # Bütün mesajları idarə et
@@ -123,12 +142,24 @@ def handle_message(message):
             msg = f"📘 <b>{kitab['ad']}</b>\n✍️ Müəllif: {kitab['müəllif']}\nℹ️ {kitab['haqqinda']}\n💰 Qiymət: {kitab['qiymet']}"
             bot.send_message(chat_id, msg, parse_mode="HTML")
 
+    elif text == "mp3 dinlə":
+        user_states[chat_id] = "awaiting_query"
+        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add("Sami Yusuf", "Pərviz Hüseyni", "Baqir Mənsuri", "Mərsiyələr")
+        bot.send_message(chat_id, "Zəhmət olmasa ifaçı seçin:", reply_markup=markup)
+
     elif text == "🔙 geri":
         send_welcome(message)
 
-    elif text == "🎵 axtarış":
-        user_states[chat_id] = "awaiting_query"
-        bot.send_message(chat_id, "🎶 Zəhmət olmasa mahnı və ya ifaçının adını yaz:")
+    elif text in ["sami yusuf", "pərviz hüseyni", "baqir mənsuri", "mərsiyələr"]:
+        result = search_spotify(text)
+        bot.send_message(chat_id, result, parse_mode="HTML", disable_web_page_preview=False)
+
+    elif text == "hava":
+        bot.send_message(chat_id, "Bakıdakı hava: Günəşli və isti.")
+
+    elif text == "əlaqə":
+        bot.send_message(chat_id, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
 
     else:
         bot.send_message(chat_id, "Axtardığınız ifadə üzrə nəticə tapılmadı və ya seçim mövcud deyil.")

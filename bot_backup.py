@@ -89,9 +89,9 @@ def handle_message(message):
         bot.reply_to(message, "Mən yaxşıyam! Sən necəsən?")
 
     elif "çox sağ ol" in text or "çox sağol" in text:
-        bot.reply_to(message, "Dəyməz!")
+        bot.reply_to(message, "Dəyməz, h?miş? yaxşı ol!")
 
-    elif any(word in text for word in ["qiymət", "neçəyə"]):
+    elif any(word in text for word in ["qiymət", "neçəyə", "neç?y?dir?", "neç?y?di?"]):
         bot.reply_to(message, "Qiymətlər kitabdan asılı olaraq dəyişir.")
 
     elif any(word in text for word in ["əlaqə", "nömrə"]):
