@@ -129,13 +129,6 @@ def handle_dialogs(text, chat_id):
     elif "səni kim yaradıb" in text:
         bot.reply_to(chat_id, "Məni Kamran qardaşım yaradıb! 🤖❤️")
 
-# /start komandası
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("Kitablar", "MP3", "Hava", "Əlaqə")
-    bot.send_message(message.chat.id, "Salam! Nə ilə maraqlanırsan?", reply_markup=markup)
-
 # Bütün mesajları idarə et
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
