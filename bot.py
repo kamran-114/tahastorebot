@@ -1,4 +1,4 @@
-import telebot  
+import telebot
 import requests
 import json
 import os
@@ -19,16 +19,12 @@ OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
-# Test üçün bot tokenini çap et
-print(f"BOT_TOKEN: {BOT_TOKEN}")
-print(f"SPOTIFY_CLIENT_ID: {SPOTIFY_CLIENT_ID}")
-print(f"SPOTIFY_CLIENT_SECRET: {SPOTIFY_CLIENT_SECRET}")
-print(f"OPENWEATHER_API_KEY: {OPENWEATHER_API_KEY}")
-
 # Botun əsas funksiyaları burada olacaq
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "Salam! Botumuz işləyir.")
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("Kitablar", "MP3", "Hava", "Əlaqə")
+    bot.send_message(message.chat.id, "Salam! Nə ilə maraqlanırsan?", reply_markup=markup)
 
 # Spotify funksiyaları
 def get_spotify_token():
@@ -101,6 +97,21 @@ books = {
     }
 }
 
+# Hava məlumatları
+def get_weather(city):
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=az"
+    response = requests.get(url)
+    data = response.json()
+
+    if data.get("cod") != 200:
+        return "Hava məlumatı tapılmadı."
+
+    weather_description = data["weather"][0]["description"]
+    temperature = data["main"]["temp"]
+    city_name = data["name"]
+    
+    return f"{city_name} şəhərində hava: {weather_description}, temperatur: {temperature}°C"
+
 # İnsan dialoqları
 def handle_dialogs(text, chat_id):
     if any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
@@ -118,14 +129,11 @@ def handle_dialogs(text, chat_id):
     elif "səni kim yaradıb" in text:
         bot.reply_to(chat_id, "Məni Kamran qardaşım yaradıb! 🤖❤️")
 
-# İstifadəçinin vəziyyətini saxla
-user_states = {}
-
 # /start komandası
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("Dini Kitablar", "MP3 dinlə", "Hava", "Əlaqə")
+    markup.add("Kitablar", "MP3", "Hava", "Əlaqə")
     bot.send_message(message.chat.id, "Salam! Nə ilə maraqlanırsan?", reply_markup=markup)
 
 # Bütün mesajları idarə et
@@ -134,15 +142,7 @@ def handle_message(message):
     text = message.text.lower()
     chat_id = message.chat.id
 
-    if user_states.get(chat_id) == "awaiting_query":
-        bot.send_chat_action(chat_id, "typing")
-        result = search_spotify(message.text)
-        bot.send_message(chat_id, result, parse_mode="HTML", disable_web_page_preview=False)
-        user_states.pop(chat_id)
-        return
-
-    # Kitablar bölməsi
-    if text == "dini kitablar":
+    if text == "kitablar":
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add("Hədislər", "🔙 Geri")
         bot.send_message(chat_id, "Zəhmət olmasa bölmə seçin:", reply_markup=markup)
@@ -152,12 +152,14 @@ def handle_message(message):
             msg = f"📘 <b>{kitab['ad']}</b>\n✍️ Müəllif: {kitab['müəllif']}\nℹ️ {kitab['haqqinda']}\n💰 Qiymət: {kitab['qiymet']}"
             bot.send_message(chat_id, msg, parse_mode="HTML")
 
-    # MP3 dinləmə bölməsi
-    elif text == "mp3 dinlə":
-        user_states[chat_id] = "awaiting_query"
-        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add("Sami Yusuf", "Pərviz Hüseyni", "Baqir Mənsuri", "Mərsiyələr")
-        bot.send_message(chat_id, "Zəhmət olmasa ifaçı seçin:", reply_markup=markup)
+    elif text == "mp3":
+        bot.send_message(chat_id, "Zəhmət olmasa axtaracağınız mahnı adını yazın.")
+
+    elif text == "hava":
+        bot.send_message(chat_id, "Zəhmət olmasa şəhər adını yazın.")
+        
+    elif text == "əlaqə":
+        bot.send_message(chat_id, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
 
     # Geri düyməsi
     elif text == "🔙 geri":
@@ -168,16 +170,10 @@ def handle_message(message):
         result = search_spotify(text)
         bot.send_message(chat_id, result, parse_mode="HTML", disable_web_page_preview=False)
 
-    # Hava məlumatı
-    elif text == "hava":
-        response = requests.get("https://api.openweathermap.org/data/2.5/weather?q=Baku&appid=8db207e04b11bb5027922faf1eeee944&units=metric")
-        if response.status_code == 200:
-            data = response.json()
-            weather = data["weather"][0]["description"]
-            temp = data["main"]["temp"]
-            bot.send_message(chat_id, f"Bakıdakı hava: {weather}, Hava temperaturu: {temp}°C.")
-        else:
-            bot.send_message(chat_id, "Hava məlumatı alınmadı.")
+    # Hava axtarışı
+    elif text.isalpha():
+        weather_result = get_weather(text)
+        bot.send_message(chat_id, weather_result)
 
     # Əlaqə bölməsi
     elif text == "əlaqə":
@@ -185,7 +181,7 @@ def handle_message(message):
 
     # Digər hallarda
     else:
-        bot.send_message(chat_id, "Axtardığınız ifadə üzrə nəticə tapılmadı və ya seçim mövcud deyil.")
+        handle_dialogs(text, chat_id)
 
 # Webhook və Flask
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
