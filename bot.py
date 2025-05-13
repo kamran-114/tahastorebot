@@ -78,24 +78,7 @@ def search_spotify(query):
     return result_message.strip()
 
 # Kitab məlumatları
-books = {
-    "Dini Kitablar": {
-        "Hədislər": [
-            {
-                "ad": "Kafi (1-ci cild)",
-                "müəllif": "Şeyx Kuleyni",
-                "haqqinda": "Əhli-beyt hədislərini əhatə edən mötəbər mənbələrdən biridir.",
-                "qiymet": "12 AZN"
-            },
-            {
-                "ad": "Səfinətül-Bihar",
-                "müəllif": "Şeyx Abbas Qummi",
-                "haqqinda": "Biharül-Ənvar əsərinin xülasəsidir.",
-                "qiymet": "10 AZN"
-            }
-        ]
-    }
-}
+
 
 # Hava məlumatları
 def get_weather(city):
