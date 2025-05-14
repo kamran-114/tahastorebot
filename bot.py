@@ -92,9 +92,9 @@ def get_weather(city):
 def handle_dialogs(text, chat_id):
     if any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
         bot.send_message(chat_id, "Əleykum Salam!")
-    elif "necəsən?":
+    elif "necəsən?" in text:
         bot.send_message(chat_id, "Şükür mən yaxşıyam! Sən necəsən?")
-    elif "çox sağ ol", in text or "çox sağol", in text or "təşəkkür", in text or "yaxşıyam", in text or "Şükür Allaha salamatlıqdı"):
+    elif "çox sağ ol", in text or "çox sağol", in text or "təşəkkür", in text or "yaxşıyam", in text or "Şükür Allaha salamatlıqdı" in text:
         bot.send_message(chat_id, "Dəyməz, həmişə yaxşı ol! 😊", "həmişə salamatlıq olsun təki")
     elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir", "neçədir"):
         bot.send_message(chat_id, "Qiymətlər kitabdan asılı olaraq dəyişir. Hansı kitabla maraqlanırsınız?")
