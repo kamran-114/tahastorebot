@@ -96,7 +96,8 @@ def handle_dialogs(text, chat_id):
         bot.send_message(chat_id, "Şükür mən yaxşıyam! Sən necəsən?")
     elif "çox sağ ol", in text or "çox sağol", in text or "təşəkkür", in text or "yaxşıyam", in text or "Şükür Allaha salamatlıqdı" in text:
         bot.send_message(chat_id, "Dəyməz, həmişə yaxşı ol! 😊", "həmişə salamatlıq olsun təki")
-    elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir", "neçədir"):
+    if any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
+    elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir"])
         bot.send_message(chat_id, "Qiymətlər kitabdan asılı olaraq dəyişir. Hansı kitabla maraqlanırsınız?")
     elif any(word in text for word in ["əlaqə", "nömrə"]):
         bot.send_message(chat_id, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
