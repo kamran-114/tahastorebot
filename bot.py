@@ -96,7 +96,7 @@ def handle_dialogs(text, chat_id):
         bot.send_message(chat_id, "Əleykum Salam!")
     elif "necəsən" in text:
         bot.send_message(chat_id, "Mən yaxşıyam! Sən necəsən?")
-    elif "çox sağ ol" in text or "çox sağol" in text or "təşəkkür" in text or "yaxşıyam" in text or "Şükür Allaha salamatlıqdı"
+    elif: "çox sağ ol" in text or "çox sağol" in text or "təşəkkür" in text or "yaxşıyam" in text or "Şükür Allaha salamatlıqdı"
         bot.send_message(chat_id, "Dəyməz, həmişə yaxşı ol! 😊", "həmişə salamatlıq olsun təki")
     elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir", "neçədir"]):
         bot.send_message(chat_id, "Qiymətlər kitabdan asılı olaraq dəyişir. Hansı kitabla maraqlanırsınız?")
@@ -106,7 +106,7 @@ def handle_dialogs(text, chat_id):
         bot.send_message(chat_id, "Çatdırılma Bakıda 1 günə, bölgələrə 2-3 günə çatır.")
     elif "səni kim yaradıb" in text:
         bot.send_message(chat_id, "Məni Kamran qardaşım yaradıb! 🤖❤️")
-
+bot.reply_to(...)
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     text = message.text.lower()
