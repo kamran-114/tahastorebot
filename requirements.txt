@@ -1,4 +1,4 @@
 python-dotenv
 pyTelegramBotAPI
 requests
-Flask-3.1.1
+Flask==3.1.1
