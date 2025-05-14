@@ -9,8 +9,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 bot = telebot.TeleBot(BOT_TOKEN)
