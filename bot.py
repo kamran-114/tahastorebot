@@ -94,8 +94,8 @@ def get_weather(city):
 def handle_dialogs(text, chat_id):
     if any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
         bot.send_message(chat_id, "Əleykum Salam!")
-    elif "necəsən" in text:
-        bot.send_message(chat_id, "Mən yaxşıyam! Sən necəsən?")
+    elif "necəsən?" in text or "yaxşısan?" in text or "necəsən"
+        bot.send_message(chat_id, "Şükür mən yaxşıyam! Sən necəsən?")
     elif "çox sağ ol" in text or "çox sağol" in text or "təşəkkür" in text or "yaxşıyam" in text or "Şükür Allaha salamatlıqdı":
         bot.send_message(chat_id, "Dəyməz, həmişə yaxşı ol! 😊", "həmişə salamatlıq olsun təki")
     elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir", "neçədir"]):
@@ -122,7 +122,7 @@ def handle_message(message):
             msg = f"📘 <b>{kitab['ad']}</b>\n✍️ Müəllif: {kitab['müəllif']}\nℹ️ {kitab['haqqinda']}\n💰 Qiymət: {kitab['qiymet']}"
             bot.send_message(chat_id, msg, parse_mode="HTML")
 
-   elif text == "mp3":
+   elif text == "mp3"
     bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
 
 elif any(keyword in text for keyword in [
