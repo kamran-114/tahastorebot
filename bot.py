@@ -145,8 +145,8 @@ elif any(keyword in text for keyword in [
 ]):
 
     drive_links = {
-        if 'abasəlt ebrahimi - abufazil' in text:
-        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1bCAe_7IjAbcZVGNNFvG01MXYZ')
+       elif "əbufazel" in text or "abufazil" in text:
+    bot.send_audio(chat_id, audio="https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y")
     elif 'abasəlt ebrahimi - aldı hüseyn qan ilə bir dəstəmaz' in text:
         context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1cDEf_8KjBcYZWGNNFvG02NABC')
     elif 'abasəlt ebrahimi - hüseyn əba-əbdillah' in text:
