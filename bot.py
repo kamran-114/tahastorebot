@@ -135,21 +135,27 @@ def handle_message(message):
         for kitab in books["Dini Kitablar"]["Hədislər"]:
             msg = f"📘 <b>{kitab['ad']}</b>\n✍️ Müəllif: {kitab['müəllif']}\nℹ️ {kitab['haqqinda']}\n💰 Qiymət: {kitab['qiymet']}"
             bot.send_message(chat_id, msg, parse_mode="HTML")
-
-   elif text == "mp3"
+elif text == "mp3":
     bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
 
 elif any(keyword in text for keyword in [
     "abasəlt", "əba-əbdillah", "aldı hüseyn", "anam zəhra", "ləbeyk", "ya əli", "ya huseyn",
-    "ruqəyyə", "zəhra", "sahibi zaman", "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay"
+    "ruqəyyə", "zəhra", "sahibi zaman", "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay", "əbufazel", "abufazil"
 ]):
-
-   elif text == "mp3":
-    bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
-
-else:
     drive_links = {
         "əbufazel": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
+        "abufazil": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y"
+        # Buraya digər mp3 adlarını və linklərini də əlavə edə bilərik
+    }
+    found = False
+    for keyword, link in drive_links.items():
+        if keyword in text:
+            bot.send_audio(chat_id, audio=link)
+            found = True
+            break
+    if not found:
+        bot.send_message(chat_id, "Mahnı tapılmadı. Zəhmət olmasa daha dəqiq yazın.")
+
         "abufazil": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y"
     }
     found = False
