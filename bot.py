@@ -144,9 +144,23 @@ elif any(keyword in text for keyword in [
     "ruqəyyə", "zəhra", "sahibi zaman", "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay"
 ]):
 
+   elif text == "mp3":
+    bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
+
+else:
     drive_links = {
-       elif "əbufazel" in text or "abufazil" in text:
-    bot.send_audio(chat_id, audio="https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y")
+        "əbufazel": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
+        "abufazil": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y"
+    }
+    found = False
+    for keyword, link in drive_links.items():
+        if keyword in text:
+            bot.send_audio(chat_id, audio=link)
+            found = True
+            break
+    if not found:
+        handle_dialogs(text, chat_id)
+
     elif 'abasəlt ebrahimi - aldı hüseyn qan ilə bir dəstəmaz' in text:
         context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1cDEf_8KjBcYZWGNNFvG02NABC')
     elif 'abasəlt ebrahimi - hüseyn əba-əbdillah' in text:
