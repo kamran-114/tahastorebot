@@ -144,8 +144,7 @@ elif any(keyword in text for keyword in [
 ]):
     drive_links = {
         "əbufazel": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
-        "abufazil": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y"
-        # Buraya digər mp3 adlarını və linklərini də əlavə edə bilərik
+                # Buraya digər mp3 adlarını və linklərini də əlavə edə bilərik
     }
     found = False
     for keyword, link in drive_links.items():
