@@ -76,12 +76,14 @@ def handle_message(message):
         bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
 
     elif any(keyword in text for keyword in [
-        "abasəlt", "əba-əbdillah", "aldı hüseyn", "anam zəhra", "ləbeyk", "ya əli", "ya huseyn",
-        "ruqəyyə", "zəhra", "sahibi zaman", "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay", "əbufazel", "abufazil"
+        "əbufazel", "abufazil", "abasəlt", "əba-əbdillah", "aldı hüseyn", "anam zəhra",
+        "ləbeyk", "ya əli", "ya huseyn", "ruqəyyə", "zəhra", "sahibi zaman",
+        "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay"
     ]):
         drive_links = {
             "əbufazel": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
             "abufazil": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y"
+            # Buraya istədikcə digərlərini də əlavə edə bilərsən
         }
         found = False
         for keyword, link in drive_links.items():
