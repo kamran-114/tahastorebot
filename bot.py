@@ -34,85 +34,20 @@ books = {
     }
 }
 
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("Kitablar", "MP3", "Hava", "Əlaqə")
-    bot.send_message(message.chat.id, "Salam! Nə ilə maraqlanırsan?", reply_markup=markup)
-
-def get_spotify_token():
-    auth_str = f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}"
-    b64_auth_str = base64.b64encode(auth_str.encode()).decode()
-    response = requests.post(
-        "https://accounts.spotify.com/api/token",
-        headers={"Authorization": f"Basic {b64_auth_str}"},
-        data={"grant_type": "client_credentials"}
-    )
-    return response.json().get("access_token") if response.status_code == 200 else None
-
-def search_spotify(query):
-    token = get_spotify_token()
-    if not token:
-        return "Spotify ilə əlaqə qurulmadı."
-
-    headers = {"Authorization": f"Bearer {token}"}
-    params = {"q": query, "type": "track", "limit": 3}
-    response = requests.get("https://api.spotify.com/v1/search", headers=headers, params=params)
-
-    if response.status_code != 200:
-        return "Mahnı tapılmadı."
-
-    tracks = response.json().get("tracks", {}).get("items", [])
-    if not tracks:
-        return "Nəticə tapılmadı."
-
-    result_message = ""
-    for track in tracks:
-        name = track["name"]
-        artists = ", ".join([artist["name"] for artist in track["artists"]])
-        url = track["external_urls"]["spotify"]
-        result_message += f"🎧 <b>{name}</b> - {artists}\n🔗 <a href='{url}'>Spotify'da dinlə</a>\n\n"
-
-    return result_message.strip()
-
-def get_weather(city):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=az"
-    response = requests.get(url)
-    data = response.json()
-
-    if data.get("cod") != 200:
-        return "Hava məlumatı tapılmadı."
-
-    desc = data["weather"][0]["description"]
-    temp = data["main"]["temp"]
-    name = data["name"]
-    
-    return f"{name} şəhərində hava: {desc}, temperatur: {temp}°C"
-
 def handle_dialogs(text, chat_id):
     if any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
         bot.send_message(chat_id, "Əleykum Salam!")
-    elif "necəsən?" in text:
+    elif "necəsən" in text:
         bot.send_message(chat_id, "Şükür mən yaxşıyam! Sən necəsən?")
-   elif (
-    "çox sağ ol" in text
-    or "çox sağol" in text
-    or "təşəkkür" in text
-    or "yaxşıyam" in text
-    or "şükür allaha salamatlıqdı" in text
-):
-    bot.send_message(chat_id, "Dəyməz, həmişə yaxşı ol! 😊")
-elif (
-    "çox sağ ol" in text
-    or "çox sağol" in text
-    or "təşəkkür" in text
-    or "yaxşıyam" in text
-    or "şükür allaha salamatlıqdı" in text
-):
-    bot.send_message(chat_id, "Dəyməz, həmişə yaxşı ol! 😊")
-
-    if any(word in text for word in ["salam", "salamm", "salam əleykum", "salam aleykum"]):
-    elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir"])
+    elif (
+        "çox sağ ol" in text
+        or "çox sağol" in text
+        or "təşəkkür" in text
+        or "yaxşıyam" in text
+        or "şükür allaha salamatlıqdı" in text
+    ):
+        bot.send_message(chat_id, "Dəyməz, həmişə yaxşı ol! 😊")
+    elif any(word in text for word in ["qiymət", "neçəyə", "neçəyədır", "neçəyidir", "neçədir"]):
         bot.send_message(chat_id, "Qiymətlər kitabdan asılı olaraq dəyişir. Hansı kitabla maraqlanırsınız?")
     elif any(word in text for word in ["əlaqə", "nömrə"]):
         bot.send_message(chat_id, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
@@ -120,7 +55,8 @@ elif (
         bot.send_message(chat_id, "Çatdırılma Bakıda 1 günə, bölgələrə 2-3 günə çatır.")
     elif "səni kim yaradıb" in text:
         bot.send_message(chat_id, "Məni Kamran qardaşım yaradıb! 🤖❤️")
-bot.reply_to(...)
+
+
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     text = message.text.lower()
@@ -135,17 +71,43 @@ def handle_message(message):
         for kitab in books["Dini Kitablar"]["Hədislər"]:
             msg = f"📘 <b>{kitab['ad']}</b>\n✍️ Müəllif: {kitab['müəllif']}\nℹ️ {kitab['haqqinda']}\n💰 Qiymət: {kitab['qiymet']}"
             bot.send_message(chat_id, msg, parse_mode="HTML")
-elif text == "mp3":
-    bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
 
-elif any(keyword in text for keyword in [
-    "abasəlt", "əba-əbdillah", "aldı hüseyn", "anam zəhra", "ləbeyk", "ya əli", "ya huseyn",
-    "ruqəyyə", "zəhra", "sahibi zaman", "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay", "əbufazel", "abufazil"
-]):
-    drive_links = {
-        "əbufazel": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
-                # Buraya digər mp3 adlarını və linklərini də əlavə edə bilərik
-    }
+    elif text == "mp3":
+        bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
+
+    elif any(keyword in text for keyword in [
+        "abasəlt", "əba-əbdillah", "aldı hüseyn", "anam zəhra", "ləbeyk", "ya əli", "ya huseyn",
+        "ruqəyyə", "zəhra", "sahibi zaman", "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay", "əbufazel", "abufazil"
+    ]):
+        drive_links = {
+            "əbufazel": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
+            "abufazil": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y"
+        }
+        found = False
+        for keyword, link in drive_links.items():
+            if keyword in text:
+                bot.send_audio(chat_id, audio=link)
+                found = True
+                break
+        if not found:
+            bot.send_message(chat_id, "Mahnı tapılmadı. Zəhmət olmasa daha dəqiq yazın.")
+
+    elif text == "hava":
+        bot.send_message(chat_id, "Zəhmət olmasa şəhər adını yazın.")
+
+    elif text == "əlaqə":
+        bot.send_message(chat_id, "Bizim əlaqə nömrəmiz: +994 XX XXX XX XX")
+
+    elif text == "🔙 geri":
+        send_welcome(message)
+
+    elif text.isalpha() and len(text) > 2:
+        weather_result = get_weather(text)
+        bot.send_message(chat_id, weather_result)
+
+    else:
+        handle_dialogs(text, chat_id)
+
     found = False
     for keyword, link in drive_links.items():
         if keyword in text:
