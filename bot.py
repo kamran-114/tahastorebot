@@ -73,7 +73,7 @@ def handle_message(message):
             bot.send_message(chat_id, msg, parse_mode="HTML")
 
     elif text == "mp3":
-        bot.send_message(chat_id, "Zəhmət olmasa dinləmək istədiyiniz mərsiyə və ya ifaçı adını yazın.")
+        bot.send_message(chat_id, "Zəhmət olmasa axtaracağınız mahnı adını yazın.")
 
     elif any(keyword in text for keyword in [
         "əbufazel", "abufazil", "abasəlt", "əba-əbdillah", "aldı hüseyn", "anam zəhra",
@@ -83,7 +83,7 @@ def handle_message(message):
         drive_links = {
             "əbufazel": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
             "abufazil": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y"
-            # Buraya istədikcə digərlərini də əlavə edə bilərsən
+            # Digər mp3-ləri də bura əlavə edəcəksən
         }
         found = False
         for keyword, link in drive_links.items():
@@ -93,6 +93,10 @@ def handle_message(message):
                 break
         if not found:
             bot.send_message(chat_id, "Mahnı tapılmadı. Zəhmət olmasa daha dəqiq yazın.")
+
+    elif text in ["sami yusuf", "pərviz hüseyni", "baqir mənsuri", "mərsiyələr"]:
+        result = search_spotify(text)
+        bot.send_message(chat_id, result, parse_mode="HTML", disable_web_page_preview=True)
 
     elif text == "hava":
         bot.send_message(chat_id, "Zəhmət olmasa şəhər adını yazın.")
