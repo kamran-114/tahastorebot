@@ -80,20 +80,50 @@ def handle_message(message):
         "ləbeyk", "ya əli", "ya huseyn", "ruqəyyə", "zəhra", "sahibi zaman",
         "əli mövla", "əli əkbər", "əlinin yari", "zeynəb", "lay-lay"
     ]):
-        drive_links = {
-            "əbufazel": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
-            "abufazil": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y"
-            context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1wXYZ_8EdVwSFEFFNFvG22NCEC')
-    elif 'hadi kazemi - million army' in text:
-        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1xYZA_9FeWxTGFGGNFvG23NDFC')
-    elif 'həsən neməti - salam qarə pərçəmə' in text:
-        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1yZAB_0GfXyUHGHHNFvG24NEGC')
-    elif 'əkbər babazadə - qara köynək geyərəm' in text:
-        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1zABC_1HgYzVIIIIIFvG25NFHC')
-    elif 'səlim müəzzinzadə - zeynəb zeynəb' in text:
-        context.bot.send_audio(chat_id=update.effective_chat.id, audio='https://drive.google.com/uc?export=download&id=1aBCD_2IhAzWJJJJJFvG26NGIC')
-    else:
-        update.message.reply_text('Bağışlayın, bu mahnını tapa bilmədim.')
+        mp3_links = {
+    "abasəlt ebrahimi - abufazil(ə)": "https://drive.google.com/uc?export=download&id=1LUxfbVpi_aEV-V1De2scwCUtJ1jP1o_Y",
+    "abasəlt ebrahimi - aldı hüseyn qan ilə bir dəstəmaz": "https://drive.google.com/uc?export=download&id=1cDEf_8KjBcYZWGNNFvG02NABC",
+    "abasəlt ebrahimi - hüseyn əba-əbdillah": "https://drive.google.com/uc?export=download&id=1dEFg_9LkCdZXWHNNFvG03NDEF",
+    "abasəlt ebrahimi - ləbbeyk ya əba-əbdillah": "https://drive.google.com/uc?export=download&id=1eFGh_0MlDeAYXINNFvG04NGHI",
+    "adel najafi - hz. əbəlfəzl": "https://drive.google.com/uc?export=download&id=1fGHi_1NmEfBZYOONFvG05NJJK",
+    "hacı islam mirzai - anam zəhra": "https://drive.google.com/uc?export=download&id=1gHIj_2OnFgCZZPPNFvG06NKLM",
+    "baqir mənsuri - ruqəyyə nazlı surətin": "https://drive.google.com/uc?export=download&id=1hIJk_3PoGhDAAQQNFvG07NLMN",
+    "ceyhun müəzzin - əli mövla": "https://drive.google.com/uc?export=download&id=1iJKl_4QpHiEBBRRNFvG08NMOP",
+    "əhlibeyt qrupu - əli əkbər": "https://drive.google.com/uc?export=download&id=1jKLm_5RqIjFCCSSNFvG09NPQR",
+    "əhlibeyt qrupu - sahibi zaman gəldi": "https://drive.google.com/uc?export=download&id=1kLMn_6SrJkGDDTTNFvG10NQRS",
+    "əhlibeyt qrupu - ya əli": "https://drive.google.com/uc?export=download&id=1lMNo_7TsKlHEEUUNFvG11NRTS",
+    "əkbər babazadə - əli lay-lay gülüm lay-lay": "https://drive.google.com/uc?export=download&id=1mNOp_8UtLmIFFVVNFvG12NSUV",
+    "mehdi rəsuli - əlini ağlatma": "https://drive.google.com/uc?export=download&id=1nOPq_9VuMnJGGWWNFvG13NTVW",
+    "baqir mənsuri - əlinin yari zəhra": "https://drive.google.com/uc?export=download&id=1oPQr_0WvNoKHHXXNFvG14NUWX",
+    "baqir mənsuri - ağlaram zəhra": "https://drive.google.com/uc?export=download&id=1pQRs_1XwOpLIYYYNFvG15NVXY",
+    "baqir mənsuri - ağlama xudahafiz": "https://drive.google.com/uc?export=download&id=1qRSt_2YxPqMJZZZNFvG16NWYZ",
+    "hacı kamran - yaralı zəhra": "https://drive.google.com/uc?export=download&id=1rSTu_3ZyQrNKAAANFvG17NXZA",
+    "hacı kamran - ya hüseyn": "https://drive.google.com/uc?export=download&id=1sTUV_4AzRsOLBBBNFvG18NYAB",
+    "hacı zahir - gözün aç zəhra": "https://drive.google.com/uc?export=download&id=1tUVW_5BaStPMCCCCNFvG19NZBC",
+    "hadi kazemi - babəl hüseyn": "https://drive.google.com/uc?export=download&id=1uVWX_6CbTuQNDDDNFvG20NACD",
+    "hadi kazemi - həbibi ya hüseyn": "https://drive.google.com/uc?export=download&id=1vWXY_7DcUvREDDDEFvG21NBDC",
+    "hadi kazemi - məzlum əli": "https://drive.google.com/uc?export=download&id=1wXYZ_8EdVwSFEFFNFvG22NCEC",
+    "hadi kazemi - million army": "https://drive.google.com/uc?export=download&id=1xYZA_9FeWxTGFGGNFvG23NDFC",
+    "həsən neməti - salam qarə pərçəmə": "https://drive.google.com/uc?export=download&id=1yZAB_0GfXyUHGHHNFvG24NEGC",
+    "əkbər babazadə - qara köynək geyərəm": "https://drive.google.com/uc?export=download&id=1zABC_1HgYzVIIIIIFvG25NFHC",
+    "səlim müəzzinzadə - zeynəb zeynəb": "https://drive.google.com/uc?export=download&id=1aBCD_2IhAzWJJJJJFvG26NGIC"
+}
+
+@bot.message_handler(func=lambda message: True)
+def handle_message(message):
+    text = message.text.lower()
+    chat_id = message.chat.id
+
+    # mp3 yoxlaması
+    for key in mp3_links:
+        if key in text:
+            bot.send_audio(chat_id, mp3_links[key])
+            return
+
+    # burda digər funksiyalar davam edir
+    # məsələn kitablar, hava, dialoglar və s.
+
+
 # burda sən istədikcə əlavə edə bilərsən
     }
             # Digər mp3-ləri də bura əlavə edə bilərsən
